@@ -6,6 +6,7 @@ import com.example.cloneproject.entity.User;
 import com.example.cloneproject.entity.UserPlan;
 import com.example.cloneproject.entity.UserRole;
 import com.example.cloneproject.repository.UserRepository;
+import com.example.cloneproject.service.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +14,12 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
             return new AuthResponse("Invalid email or password", null);
         }
-
-        return new AuthResponse("Login successful", "TEMP_TOKEN");
+        String token = jwtService.generateToken(user.getEmail());
+        return new AuthResponse("Login successful", token);
     }
 }
